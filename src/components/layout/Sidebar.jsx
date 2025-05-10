@@ -8,6 +8,7 @@ import {
   Stethoscope,
   ChevronLeft,
   ChevronRight,
+  BookOpen,
 } from "lucide-react";
 import { useUiStore } from "../../stores/uiStore";
 import Logo from "../../assets/logo.png";
@@ -17,6 +18,8 @@ const navItems = [
   { path: "/doctor/patients", label: "Patients", icon: Users },
   { path: "/doctor/images", label: "Images", icon: Image },
   { path: "/doctor/diagnoses", label: "Diagnoses", icon: Stethoscope },
+  { path: "/doctor/articles", label: "Articles", icon: BookOpen },
+
 ];
 
 const Sidebar = () => {

@@ -16,6 +16,7 @@ import Patients from "./pages/Doctor/Patients";
 import Images from "./pages/Doctor/Images";
 import Diagnoses from "./pages/Doctor/Diagnoses";
 import Notification from "./components/common/Notification";
+import Articles from "./pages/Doctor/Articles";
 
 function ProtectedRoute({ children, role }) {
   const { isAuthenticated, user } = useAuthStore();
@@ -49,6 +50,8 @@ function App() {
         />
         <Route path="/password-reset/:token" element={<PasswordReset />} />
 
+
+
         {/* Admin Routes */}
         <Route
           path="/admin/dashboard"
@@ -70,6 +73,8 @@ function App() {
                   <Route path="patients" element={<Patients />} />
                   <Route path="images" element={<Images />} />
                   <Route path="diagnoses" element={<Diagnoses />} />
+                  <Route path="/articles" element={<Articles />} />
+
                   <Route
                     path="*"
                     element={<Navigate to="dashboard" replace />}

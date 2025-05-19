@@ -18,5 +18,6 @@ export const getDiagnoses = (page = 1, limit = 10, search = "", patientId = "", 
       patientId ? `&patientId=${patientId}` : ""
     }${severity ? `&severity=${severity}` : ""}`
   );
-
 export const getDiagnosesByPatient = (patientId) => api.get(`/diagnoses/patient/${patientId}`);
+export const generateRecommendation = (diagnosisId) =>
+  api.post("/recommendations", { diagnosisId });

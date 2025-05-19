@@ -1,8 +1,9 @@
-import React from 'react';
-import { Menu, ChevronDown, ChevronUp, User, LogOut } from 'lucide-react';
-import { useAuthStore } from '../../stores/authStore';
-import { useUiStore } from '../../stores/uiStore';
-import { useNavigate } from 'react-router-dom';
+// src/components/layout/Topbar.jsx
+import React from "react";
+import { Menu, ChevronDown, ChevronUp, User, LogOut } from "lucide-react";
+import { useAuthStore } from "../../stores/authStore";
+import { useUiStore } from "../../stores/uiStore";
+import { useNavigate } from "react-router-dom";
 
 const Topbar = () => {
   const { user, logout } = useAuthStore();
@@ -11,18 +12,22 @@ const Topbar = () => {
 
   const handleLogout = () => {
     logout();
-    navigate('/login');
+    navigate("/login");
   };
 
-  const dropdownItems = [
-    { label: 'Profile', icon: User, action: () => navigate('/doctor/profile') },
-    { label: 'Logout', icon: LogOut, action: handleLogout },
+  // Define dropdown items based on user role
+  const dropdownItems = user?.role === "admin" ? [
+    { label: "Profile", icon: User, action: () => navigate("/admin/profile") },
+    { label: "Logout", icon: LogOut, action: handleLogout },
+  ] : [
+    { label: "Profile", icon: User, action: () => navigate("/doctor/profile") },
+    { label: "Logout", icon: LogOut, action: handleLogout },
   ];
 
   return (
     <header
       className={`fixed top-0 right-0 z-40 h-16 bg-white shadow-md flex items-center justify-between p-4 transition-all duration-300 ${
-        isSidebarCollapsed ? 'left-16' : 'left-64'
+        isSidebarCollapsed ? "left-16" : "left-64"
       }`}
     >
       {/* Mobile Menu Button */}
@@ -45,7 +50,7 @@ const Topbar = () => {
           aria-label="User Menu"
         >
           <span className="text-sm font-medium">
-            {user?.name ? `Dr. ${user.name}` : 'User'}
+            {user?.role === "admin" ? `Admin ${user?.name || "User"}` : `Dr. ${user?.name || "User"}`}
           </span>
           {isDropdownOpen ? (
             <ChevronUp className="w-5 h-5" />
@@ -76,4 +81,3 @@ const Topbar = () => {
 };
 
 export default Topbar;
-

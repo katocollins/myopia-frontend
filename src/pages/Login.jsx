@@ -40,7 +40,7 @@ const Login = () => {
       await login(data);
       const { user } = useAuthStore.getState();
       navigate(
-        user.role === "admin" ? "/admin/dashboard" : "/doctor/dashboard"
+        user.role === "admin" ? "/admin/users" : "/doctor/dashboard"
       );
     } catch (error) {
       // Error handled by axios interceptor

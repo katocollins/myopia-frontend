@@ -12,6 +12,7 @@ import {
   getPatientsBySeverity,
   getDiagnosesBySeverity,
   getRecentDiagnoses,
+  generateRecommendation,
 } from "../api/diagnoses";
 import { useUiStore } from "./uiStore";
 
@@ -25,6 +26,7 @@ export const useDiagnosisStore = create((set) => ({
   patientsBySeverity: { normal: 0, low: 0, medium: 0, high: 0, severe: 0 },
   diagnosesBySeverity: { normal: 0, low: 0, medium: 0, high: 0, severe: 0 },
   recentDiagnoses: [],
+  recommendations: [], // New state for recommendations
 
   getDiagnosisCount: async () => {
     const { setLoading, showToast } = useUiStore.getState();
@@ -189,6 +191,24 @@ export const useDiagnosisStore = create((set) => ({
       set({ recentDiagnoses: data });
     } catch (error) {
       showToast("Failed to fetch recent diagnoses", "error");
+    } finally {
+      setLoading(false);
+    }
+  },
+
+  generateRecommendation: async (diagnosisId) => {
+    const { setLoading, showToast } = useUiStore.getState();
+    setLoading(true);
+    try {
+      const { data } = await generateRecommendation(diagnosisId);
+      set((state) => ({
+        recommendations: [...state.recommendations, data.recommendation],
+      }));
+      showToast("Recommendation generated successfully", "success");
+      return data.recommendation;
+    } catch (error) {
+      showToast(error.response?.data?.error || "Failed to generate recommendation", "error");
+      throw error;
     } finally {
       setLoading(false);
     }

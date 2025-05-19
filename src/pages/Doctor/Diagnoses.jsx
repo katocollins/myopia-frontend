@@ -15,6 +15,7 @@ import {
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { useNavigate } from "react-router-dom"; // Added
 import { useDiagnosisStore } from "../../stores/diagnosisStore";
 import { usePatientStore } from "../../stores/patientStore";
 import { useImageStore } from "../../stores/imageStore";
@@ -32,7 +33,7 @@ const formatDate = (date) =>
     ? new Date(date).toLocaleDateString("en-US", { month: "short", day: "2-digit", year: "numeric" })
     : "-";
 
-// Generate pagination range (from Images.jsx)
+// Generate pagination range
 const getPaginationRange = (currentPage, totalPages) => {
   const delta = 2;
   const range = [];
@@ -66,7 +67,6 @@ const getPaginationRange = (currentPage, totalPages) => {
 
 const Diagnoses = () => {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [deleteDiagnosisId, setDeleteDiagnosisId] = useState(null);
   const [search, setSearch] = useState("");
@@ -83,14 +83,12 @@ const Diagnoses = () => {
     getDiagnoses,
     getDiagnosisCount,
     createDiagnosis,
-    getDiagnosis,
     deleteDiagnosis,
-    setSelectedDiagnosis,
-    selectedDiagnosis,
   } = useDiagnosisStore();
   const { patients, getPatients } = usePatientStore();
   const { images, getImages } = useImageStore();
   const { showToast, isLoading } = useUiStore();
+  const navigate = useNavigate(); // Added
 
   const {
     register,
@@ -109,8 +107,8 @@ const Diagnoses = () => {
   useEffect(() => {
     getDiagnosisCount();
     getDiagnoses(currentPage, limit, search, patientId, severity);
-    getPatients(1, 100); // For dropdown
-    getImages(1, 100); // For retinal images
+    getPatients(1, 100);
+    getImages(1, 100);
   }, [getDiagnosisCount, getDiagnoses, getPatients, getImages, currentPage, limit, search, patientId, severity]);
 
   // Handle search input
@@ -150,13 +148,8 @@ const Diagnoses = () => {
   };
 
   // Handle view diagnosis
-  const handleView = async (id) => {
-    try {
-      await getDiagnosis(id);
-      setIsViewModalOpen(true);
-    } catch (error) {
-      // Error handled by diagnosisStore
-    }
+  const handleView = (id) => {
+    navigate(`/doctor/diagnoses/${id}`); // Navigate to new page
   };
 
   // Handle delete
@@ -174,6 +167,24 @@ const Diagnoses = () => {
   const availableImages = images.filter(
     (image) => !diagnoses.some((d) => d.retinalImageId.toString() === image._id.toString())
   );
+
+  // Helper function for severity color
+  const getSeverityColor = (severity) => {
+    switch (severity?.toLowerCase()) {
+      case "severe":
+        return "bg-red-100 text-red-800";
+      case "high":
+        return "bg-orange-100 text-orange-800";
+      case "medium":
+        return "bg-yellow-100 text-yellow-800";
+      case "low":
+        return "bg-blue-100 text-blue-800";
+      case "normal":
+        return "bg-green-100 text-green-800";
+      default:
+        return "bg-gray-100 text-gray-800";
+    }
+  };
 
   return (
     <div className="flex flex-col gap-6 p-6 bg-gray-50 min-h-screen">
@@ -510,114 +521,6 @@ const Diagnoses = () => {
                 </button>
               </div>
             </form>
-          </div>
-        </div>
-      )}
-
-      {/* View Modal */}
-      {isViewModalOpen && selectedDiagnosis && (
-        <div className="fixed inset-0 bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl p-6 w-full max-w-4xl animate-fade-in shadow-xl">
-            <div className="flex items-center justify-between mb-5">
-              <h2 className="text-xl font-bold text-gray-800">Diagnosis Details</h2>
-              <button
-                onClick={() => setIsViewModalOpen(false)}
-                className="p-1 rounded-full hover:bg-gray-100 focus:outline-none"
-              >
-                <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-            <div className="flex flex-col md:flex-row gap-6">
-              <div className="flex-1 space-y-4">
-                <div>
-                  <p className="text-sm font-medium text-gray-500">Original Image</p>
-                  <img
-                    src={`http://localhost:5000/${selectedDiagnosis.retinalImageId.originalImagePath.split("/").pop()}?t=${Date.now()}`}
-                    alt="Original retinal image"
-                    className="w-full h-auto max-h-[40vh] object-contain rounded-lg border border-gray-200"
-                    onError={(e) => (e.target.src = "/placeholder.png")}
-                  />
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-gray-500">YOLO Output Image</p>
-                  {selectedDiagnosis.retinalImageId.yoloOutputPath ? (
-                   <img
-                   src={`https://collinz56-myopia-yolo.hf.space/static/${selectedDiagnosis.retinalImageId.yoloOutputPath.split("/").pop()}?t=${Date.now()}`}
-                   alt="YOLO output image"
-                   className="w-full h-auto max-h-[40vh] object-contain rounded-lg border border-gray-200"
-                   onError={(e) => {
-                     console.error("Failed to load YOLO output image:", {
-                       yoloOutputPath: selectedDiagnosis.retinalImageId.yoloOutputPath,
-                       attemptedUrl: e.target.src,
-                     });
-                     e.target.src = "/placeholder.png";
-                     e.target.onerror = null; // Prevent retry loop
-                   }}
-                   onLoad={() => console.log("YOLO output image loaded successfully:", selectedDiagnosis.retinalImageId.yoloOutputPath)}
-                 />
-                  ) : (
-                    <p className="text-gray-400 italic">No YOLO output available</p>
-                  )}
-                </div>
-              </div>
-              <div className="flex-1 space-y-4">
-                <div>
-                  <p className="text-sm font-medium text-gray-500">Patient</p>
-                  <p className="text-gray-800 font-medium">{selectedDiagnosis.retinalImageId.patientId.name}</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-gray-500">Severity Level</p>
-                  <p className="text-gray-800 capitalize">{selectedDiagnosis.severityLevel}</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-gray-500">Diagnosed At</p>
-                  <p className="text-gray-800">{formatDate(selectedDiagnosis.diagnosedAt)}</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-gray-500">Notes</p>
-                  <p className="text-gray-800">{selectedDiagnosis.notes || "No notes provided"}</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-gray-500 mb-2">YOLO Detections</p>
-                  {selectedDiagnosis.yoloDetections.length > 0 ? (
-                    <div className="overflow-x-auto">
-                      <table className="w-full text-sm text-left">
-                        <thead>
-                          <tr className="bg-gray-50">
-                            <th className="py-2 px-3 text-gray-600 font-semibold">Label</th>
-                            <th className="py-2 px-3 text-gray-600 font-semibold">Confidence</th>
-                            <th className="py-2 px-3 text-gray-600 font-semibold">Bounding Box</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {selectedDiagnosis.yoloDetections.map((detection, index) => (
-                            <tr key={index} className="border-b">
-                              <td className="py-2 px-3 text-gray-700">{detection.label}</td>
-                              <td className="py-2 px-3 text-gray-700">{(detection.confidence * 100).toFixed(2)}%</td>
-                              <td className="py-2 px-3 text-gray-700">
-                                x: {detection.boundingBox.x}, y: {detection.boundingBox.y}, w: {detection.boundingBox.width}, h: {detection.boundingBox.height}
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  ) : (
-                    <p className="text-gray-400 italic">No detections available</p>
-                  )}
-                </div>
-              </div>
-            </div>
-            <div className="mt-6 flex justify-end">
-              <button
-                onClick={() => setIsViewModalOpen(false)}
-                className="px-4 py-2.5 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-300 transition-all duration-200 font-medium"
-              >
-                Close
-              </button>
-            </div>
           </div>
         </div>
       )}

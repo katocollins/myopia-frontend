@@ -1,6 +1,7 @@
-// src/components/layout/Sidebar.jsx
 import React from "react";
 import { NavLink } from "react-router-dom";
+import { useUiStore } from "../../stores/uiStore";
+import { useAuthStore } from "../../stores/authStore";
 import {
   LayoutDashboard,
   Users,
@@ -10,20 +11,23 @@ import {
   ChevronRight,
   BookOpen,
 } from "lucide-react";
-import { useUiStore } from "../../stores/uiStore";
+
 import Logo from "../../assets/logo.png";
-
-const navItems = [
-  { path: "/doctor/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { path: "/doctor/patients", label: "Patients", icon: Users },
-  { path: "/doctor/images", label: "Images", icon: Image },
-  { path: "/doctor/diagnoses", label: "Diagnoses", icon: Stethoscope },
-  { path: "/doctor/articles", label: "Articles", icon: BookOpen },
-
-];
 
 const Sidebar = () => {
   const { isSidebarCollapsed, toggleSidebar } = useUiStore();
+  const { user } = useAuthStore();
+
+  // Define navigation items based on user role
+  const navItems = user?.role === "admin" ? [
+    { path: "/admin/users", label: "User Management", icon: Users },
+  ] : [
+    { path: "/doctor/dashboard", label: "Dashboard", icon: LayoutDashboard },
+    { path: "/doctor/patients", label: "Patients", icon: Users },
+    { path: "/doctor/images", label: "Images", icon: Image },
+    { path: "/doctor/diagnoses", label: "Diagnoses", icon: Stethoscope },
+    { path: "/doctor/articles", label: "Articles", icon: BookOpen },
+  ];
 
   return (
     <aside
@@ -91,4 +95,3 @@ const Sidebar = () => {
 };
 
 export default Sidebar;
-

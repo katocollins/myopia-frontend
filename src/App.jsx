@@ -9,7 +9,7 @@ import { useAuthStore } from "./stores/authStore";
 import Login from "./pages/Login";
 import PasswordResetRequest from "./pages/PasswordResetRequest";
 import PasswordReset from "./pages/PasswordReset";
-import AdminDashboard from "./pages/AdminDashboard";
+import Admin from "./pages/Admin/Admin"; 
 import DashboardLayout from "./components/layout/DashboardLayout";
 import DoctorDashboard from "./pages/Doctor/DoctorDashboard";
 import Patients from "./pages/Doctor/Patients";
@@ -17,6 +17,7 @@ import Images from "./pages/Doctor/Images";
 import Diagnoses from "./pages/Doctor/Diagnoses";
 import Notification from "./components/common/Notification";
 import Articles from "./pages/Doctor/Articles";
+import DiagnosisDetails from "./pages/Doctor/DiagnosisDetails";
 
 function ProtectedRoute({ children, role }) {
   const { isAuthenticated, user } = useAuthStore();
@@ -28,7 +29,7 @@ function ProtectedRoute({ children, role }) {
   if (role && user?.role !== role) {
     return (
       <Navigate
-        to={user?.role === "admin" ? "/admin/dashboard" : "/doctor/dashboard"}
+        to={user?.role === "admin" ? "/admin/users" : "/doctor/dashboard"} 
         replace
       />
     );
@@ -50,14 +51,16 @@ function App() {
         />
         <Route path="/password-reset/:token" element={<PasswordReset />} />
 
-
-
         {/* Admin Routes */}
         <Route
-          path="/admin/dashboard"
+          path="/admin/*"
           element={
             <ProtectedRoute role="admin">
-              <AdminDashboard />
+              <DashboardLayout>
+                <Routes> 
+                  <Route path="users" element={<Admin />}/>
+                </Routes>
+              </DashboardLayout>
             </ProtectedRoute>
           }
         />
@@ -73,8 +76,8 @@ function App() {
                   <Route path="patients" element={<Patients />} />
                   <Route path="images" element={<Images />} />
                   <Route path="diagnoses" element={<Diagnoses />} />
-                  <Route path="/articles" element={<Articles />} />
-
+                  <Route path="diagnoses/:diagnosisId" element={<DiagnosisDetails />} />
+                  <Route path="articles" element={<Articles />} />
                   <Route
                     path="*"
                     element={<Navigate to="dashboard" replace />}

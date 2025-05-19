@@ -9,3 +9,6 @@ export const registerDoctor = (data) => api.post("/auth/register", data);
 export const getProfile = () => api.get("/auth/profile");
 export const updateProfile = (data) => api.put("/auth/profile", data);
 export const deleteProfile = () => api.delete("/auth/profile");
+export const getUsers = (page = 1, limit = 10, search = "") =>
+  api.get("/auth/users", { params: { page, limit, search } });
+export const getUserCount = () => api.get("/auth/users/count");

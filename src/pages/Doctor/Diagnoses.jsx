@@ -310,14 +310,7 @@ const Diagnoses = () => {
                   <tr key={diagnosis._id} className="hover:bg-gray-50 transition-colors duration-150">
                     <td className="py-4 px-4">
                       <img
-                        src={
-                          images.find((img) => img._id.toString() === diagnosis.retinalImageId.toString())?.originalImagePath
-                            ? `${import.meta.env.VITE_IMAGE_BASE_URL}/${images
-                                .find((img) => img._id.toString() === diagnosis.retinalImageId.toString())
-                                .originalImagePath.split("/")
-                                .pop()}?t=${Date.now()}`
-                            : "/placeholder.png"
-                        }
+                        src={`${import.meta.env.VITE_IMAGE_BASE_URL}/${diagnosis.retinalImageId.originalImagePath.split("/").pop()}?t=${Date.now()}`}
                         alt="Retinal thumbnail"
                         className="w-12 h-12 object-cover rounded-md border border-gray-200"
                         onError={(e) => (e.target.src = "/placeholder.png")}

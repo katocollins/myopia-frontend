@@ -283,7 +283,7 @@ const Images = () => {
                   <tr key={image._id} className="hover:bg-gray-50 transition-colors duration-150">
                     <td className="py-4 px-4">
                       <img
-                        src={`http://localhost:5000/${image.originalImagePath}?t=${Date.now()}`}
+                        src={`${import.meta.env.VITE_API_BASE_URL}/${image.originalImagePath}?t=${Date.now()}`}
                         alt="Retinal thumbnail"
                         className="w-12 h-12 object-cover rounded-md border border-gray-200"
                         onError={(e) => (e.target.src = "/placeholder.png")}

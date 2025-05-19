@@ -292,7 +292,7 @@ const generateReport = async () => {
     doc.line(margin, y + 5, margin + 100, y + 5);
     y += 15;
 
-    const originalImageUrl = `http://localhost:5000/${selectedDiagnosis.retinalImageId.originalImagePath.split("/").pop()}?t=${Date.now()}`;
+    const originalImageUrl = `${import.meta.env.VITE_API_BASE_URL}/${selectedDiagnosis.retinalImageId.originalImagePath.split("/").pop()}?t=${Date.now()}`;
     const originalImageData = await loadImageAsBase64(originalImageUrl);
     
     if (originalImageData) {
@@ -513,7 +513,7 @@ const generateReport = async () => {
                 </h2>
                 <div className="bg-gray-50 p-2 rounded-lg border border-gray-200">
                   <img
-                    src={`http://localhost:5000/${selectedDiagnosis.retinalImageId.originalImagePath.split("/").pop()}?t=${Date.now()}`}
+                    src={`${import.meta.env.VITE_API_BASE_URL}/${selectedDiagnosis.retinalImageId.originalImagePath.split("/").pop()}?t=${Date.now()}`}
                     alt="Original retinal image"
                     className="w-full h-auto max-h-[60vh] object-contain rounded-lg"
                     onError={(e) => (e.target.src = "/placeholder.png")}
